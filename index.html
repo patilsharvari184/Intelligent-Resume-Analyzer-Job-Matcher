@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intelligent Resume Analyzer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <header class="bg-gradient-to-r from-primary-500 to-purple-600 text-white p-6 text-center text-2xl font-bold">
+    <h1 class="text-3xl font-bold mb-2">Intelligent Resume Analyzer</h1>
+    <p class="text-lg font-light">Upload your resume to get job matches & interview prep</p>
+  </header>
+  
+  <!-- Navigation Tabs -->
+  <nav class="flex justify-center mt-4 space-x-4">
+    <button class="tab-btn px-4 py-2 hover:bg-primary-100 text-indigo-700 rounded" onclick="showTab('upload', event)">Upload Resume</button>
+    <button class="tab-btn px-4 py-2 hover:bg-primary-100 rounded" onclick="showTab('analysis', event)">Resume Analysis</button>
+    <button class="tab-btn px-4 py-2 hover:bg-primary-100 rounded" onclick="showTab('jobs', event)">Job Match & Interview Prep</button>
+  </nav>
+
+    <!-- Upload Resume Section -->
+    <section id="upload" class="tab-content max-w-5xl mx-auto px-4 py-6">
+      <div class="text-center border-2 border-dashed border-primary-300 rounded-lg p-12 mt-6 bg-white shadow-sm hover:shadow-md transition-all">
+        <input type="file" id="resumeInput" class="hidden" accept=".pdf,.docx,.doc" />
+        <label for="resumeInput" class="cursor-pointer">
+          <div class="flex flex-col items-center space-y-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <p class="text-indigo-600 font-medium text-lg">Upload Your Resume</p>
+            <p class="text-gray-500 text-sm">Supported formats: PDF, DOCX, DOC</p>
+          </div>
+        </label>
+        <div class="mt-8">
+          <button onclick="uploadResume()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-medium transition-colors shadow-sm" id="analyzeBtn">
+            Analyze Resume
+          </button>
+        </div>
+        <p id="uploadStatus" class="mt-4 text-sm text-gray-600"></p>
+        <div id="fileInfo" class="hidden mt-4 p-3 bg-gray-100 rounded-lg inline-block">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primay-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+            </svg>
+            <span id="fileName" class="text-gray-700"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <!-- Resume Analysis Section -->
+  <section id="analysis" class="tab-content hidden max-w-5xl mx-auto px-4 py-6">
+    <div id="resumeAnalysis" class="bg-white p-8 rounded-lg shadow">
+      <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Resume Analysis</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-lg font-semibold mb-4 text-indigo-700">Personal Information</h3>
+          <div id="personalInfo" class="space-y-3">
+            <!-- Will be populated by JS -->
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold mb-4 text-indigo-700">Skills & Expertise</h3>
+          <div id="skillsInfo" class="flex flex-wrap gap-2">
+            <!-- Will be populated by JS -->
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-8">
+        <h3 class="text-lg font-semibold mb-4 text-indigo-700">Experience Summary</h3>
+        <div id="experienceInfo" class="space-y-3">
+          <!-- Will be populated by JS -->
+        </div>
+      </div>
+      
+      <div class="mt-8">
+        <h3 class="text-lg font-semibold mb-4 text-indigo-700">Education</h3>
+        <div id="educationInfo" class="space-y-3">
+          <!-- Will be populated by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Job Matches Section -->
+  <section id="jobs" class="tab-content hidden p-6">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-xl font-bold mb-4">Recommended Jobs</h2>
+      <div id="jobList" class="grid gap-6"></div>
+
+      <div id="interviewQuestions" class="mt-10 bg-gray-100 p-4 rounded hidden">
+        <h3 class="font-semibold text-lg mb-4">Interview Questions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Resume Based Questions -->
+          <div>
+            <h4 class="font-medium text-md mb-2">Resume Based Questions</h4>
+            <ul id="resumeQuestionsList" class="list-disc pl-5 space-y-1"></ul>
+          </div>
+      
+          <!-- Job Description Based Questions -->
+          <div>
+            <h4 class="font-medium text-md mb-2">Job Description Based Questions</h4>
+            <ul id="jobDescQuestionsList" class="list-disc pl-5 space-y-1"></ul>
+          </div>
+      
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- Feature highlights -->
+  <div class="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-all flex flex-col items-center text-center">
+      <div class="bg-indigo-100 p-4 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Intelligent Resume Parsing</h2>
+      <p class="text-gray-600">Extracts your skills, experience, and qualifications automatically</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-all flex flex-col items-center text-center">
+      <div class="bg-indigo-100 p-4 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Job Matching</h2>
+      <p class="text-gray-600">Finds the best job matches based on your resume</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-all flex flex-col items-center text-center">
+      <div class="bg-indigo-100 p-4 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Interview Preparation</h2>
+      <p class="text-gray-600">Generates tailored interview questions to help you prepare</p>
+    </div>
+  </div>
+  
+
+  <!---------------------------------------- Final Integrated Script ------------------------------------------------>
+  <script>
+    function showTab(tab, event) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(tab).classList.remove('hidden');
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('bg-indigo-100', 'text-indigo-700'));
+      event.target.classList.add('bg-indigo-100', 'text-indigo-700');
+    }
+
+    async function uploadResume() {
+      const fileInput = document.getElementById('resumeInput');
+      const status = document.getElementById('uploadStatus');
+      const file = fileInput.files[0];
+      if (!file) {
+        status.textContent = "Please select a PDF resume to upload.";
+        return;
+      }
+
+      status.textContent = "Uploading and analyzing resume...";
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/upload-resume/", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+        console.log("API Response:", data);
+
+        if (data.error) {
+          status.textContent = `Error: ${data.error}`;
+          return;
+        }
+
+        status.textContent = "Resume analyzed successfully!";
+        showTab('analysis', { target: document.querySelector('.tab-btn:nth-child(2)') });
+
+        const analysis = document.getElementById('resumeAnalysis');
+        const personalInfo = document.getElementById('personalInfo');
+        const hasOnlyInternships = data.resume_data.work_experience && 
+            data.resume_data.work_experience.length > 0 && 
+            data.resume_data.work_experience.every(exp => 
+                exp.job_title.toLowerCase().includes('intern') || 
+                exp.job_title.toLowerCase().includes('internship')
+            );
+        const isFresher = !data.resume_data.work_experience || 
+            data.resume_data.work_experience.length === 0 || 
+            hasOnlyInternships;
+        personalInfo.innerHTML = `
+          <div><strong>Name:</strong> ${data.resume_data.name || 'N/A'}</div>
+          <div><strong>Email:</strong> ${data.resume_data.email || 'N/A'}</div>
+          <div><strong>Phone:</strong> ${data.resume_data.phone || 'N/A'}</div>
+          <div><strong>LinkedIn:</strong> ${data.resume_data.linkedin || 'N/A'}</div>
+          <div><strong>Experience Status:</strong> ${isFresher ? '<span class="text-green-600">Fresher</span>' : '<span class="text-blue-600">Experienced</span>'}</div>
+        `;
+
+        const skillsInfo = document.getElementById('skillsInfo');
+        skillsInfo.innerHTML = (data.resume_data.skills || []).map(skill =>
+          `<span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded mr-2 mb-2">${skill}</span>`
+        ).join('');
+
+        const experienceInfo = document.getElementById('experienceInfo');
+        if (data.resume_data.work_experience && data.resume_data.work_experience.length > 0) {
+          experienceInfo.innerHTML = data.resume_data.work_experience.map(exp => `
+            <div>
+              <strong>${exp.job_title || ''}</strong> at <strong>${exp.company || ''}</strong>
+              <div class="text-sm text-gray-600">${exp.location || ''} | ${exp.start_date || ''} - ${exp.end_date || ''}</div>
+              <ul class="list-disc ml-5 text-gray-700">
+                ${(exp.responsibilities || []).map(r => `<li>${r}</li>`).join('')}
+              </ul>
+            </div>
+          `).join('');
+        } else {
+          experienceInfo.innerHTML = '<div>No work experience found.</div>';
+        }
+
+        const educationInfo = document.getElementById('educationInfo');
+        if (data.resume_data.education && data.resume_data.education.length > 0) {
+          educationInfo.innerHTML = data.resume_data.education.map(edu => `
+            <div>
+              <strong>${edu.degree || ''}</strong> in <strong>${edu.field_of_study || ''}</strong> from <strong>${edu.university || ''}</strong>
+              <div class="text-sm text-gray-600">${edu.start_year || ''} - ${edu.end_year || ''}</div>
+            </div>
+          `).join('');
+        } else {
+          educationInfo.innerHTML = '<div>No education details found.</div>';
+        }
+
+        const jobList = document.getElementById('jobList');
+        jobList.innerHTML = data.match_results.map(job => `
+          <div class="p-4 border rounded bg-white cursor-pointer hover:shadow transition" onclick='fetchQuestionsForJob(${JSON.stringify(job)}, ${JSON.stringify(data.resume_data)})'>
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold">${job.job_title}</h3>
+                <p class="text-sm text-gray-600">${job.company} - ${job.location}</p>
+              </div>
+              <span class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded whitespace-nowrap">${job.similarity_percentage}% Match</span>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        console.error("Upload failed:", err);
+        status.textContent = "Error during upload. Please check the backend connection.";
+      }
+    }
+
+    function showQuestionsForJob(job, questionsData) {
+      const qDiv = document.getElementById('interviewQuestions');
+      const qList = document.getElementById('questionsList');
+    
+      const match = questionsData.find(
+        q => q.job_title === job.job_title && q.company === job.company
+      );
+    
+      if (!match || !match.questions || match.questions.length === 0) {
+        qList.innerHTML = `<li class="text-gray-600">No specific interview questions found for this job.</li>`;
+      } else {
+        qList.innerHTML = match.questions.map(q => `<li>${q}</li>`).join('');
+      }
+    
+      qDiv.classList.remove('hidden');
+    }
+
+    function buildQuestionSection(title, questions) {
+      if (!questions.length) return '';
+      
+      // Filter out explanatory notes and metadata
+      const filteredQuestions = questions.filter(q => 
+        !q.includes("Since only one job match") && 
+        !q.includes("Note: To create more") &&
+        !q.startsWith("**") &&
+        q.trim()
+      );
+      
+      return `
+        <div class="mb-8 bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+          <h4 class="text-lg font-semibold text-indigo-700 mb-4 pb-2 border-b">${title}</h4>
+          <ul class="space-y-4">
+            ${filteredQuestions.map((q, index) => {
+              // Remove numbering from the start of questions
+              const cleanQuestion = q.replace(/^\d+\.\s*/, '');
+              return `
+                <li class="flex gap-3">
+                  <span class="text-indigo-500 font-medium">${index + 1}.</span>
+                  <span class="text-gray-700">${cleanQuestion}</span>
+                </li>`;
+            }).join('')}
+          </ul>
+        </div>
+      `;
+    }
+
+    async function fetchQuestionsForJob(job, resumeData) {
+      const qDiv = document.getElementById('interviewQuestions');
+      
+      // Clear previous content and show loading state
+      qDiv.innerHTML = `
+        <div class="mt-10 bg-gray-50 p-6 rounded-lg">
+          <div class='p-4 text-gray-600'>Loading questions for ${job.job_title}...</div>
+        </div>
+      `;
+      qDiv.classList.remove('hidden');
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/generate-questions/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ job: job, resume_data: resumeData })
+        });
+        
+        const data = await response.json();
+        if (data.error || !data.questions || !Array.isArray(data.questions)) {
+          qDiv.innerHTML = `
+            <div class="mt-10 bg-gray-50 p-6 rounded-lg">
+              <div class='p-4 text-red-600'>${data.error || 'No questions found for this job.'}</div>
+            </div>
+          `;
+          return;
+        }
+
+        // Categorize questions based on their headers
+        const categorizedQuestions = {
+          technical: [],
+          hr: [],
+          softSkills: [],
+          scenarioBased: [],
+          jobBased: []
+        };
+
+        let currentCategory = null;
+        data.questions.forEach(q => {
+          if (q.includes("**Technical")) currentCategory = "technical";
+          else if (q.includes("**HR")) currentCategory = "hr";
+          else if (q.includes("**Soft Skills")) currentCategory = "softSkills";
+          else if (q.includes("**Scenario-Based")) currentCategory = "scenarioBased";
+          else if (q.includes("**Job-Based")) currentCategory = "jobBased";
+          else if (currentCategory && !q.includes("**") && q.trim()) {
+            categorizedQuestions[currentCategory].push(q.trim());
+          }
+        });
+
+        // Scroll the questions section into view
+        qDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Update the container style and content
+        qDiv.innerHTML = `
+          <div class="mt-10 bg-gray-50 p-6 rounded-lg">
+            <h3 class="font-bold text-xl text-gray-800 mb-6">Interview Questions for ${job.job_title}</h3>
+            <div class="space-y-6">
+              ${buildQuestionSection("Technical Questions", categorizedQuestions.technical)}
+              ${buildQuestionSection("HR Questions", categorizedQuestions.hr)}
+              ${buildQuestionSection("Soft Skills Questions", categorizedQuestions.softSkills)}
+              ${buildQuestionSection("Scenario-Based Questions", categorizedQuestions.scenarioBased)}
+              ${buildQuestionSection("Job-Based Questions", categorizedQuestions.jobBased)}
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        console.error("Failed to load questions:", err);
+        qDiv.innerHTML = `
+          <div class="mt-10 bg-gray-50 p-6 rounded-lg">
+            <div class='p-4 text-red-600'>Failed to load interview questions. Please try again.</div>
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
