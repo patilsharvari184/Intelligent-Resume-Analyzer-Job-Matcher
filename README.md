@@ -1694,7 +1694,7 @@ GET INTERVIEW-READY 🚀
 **GitHub:**
 https://github.com/patilsharvari184/Intelligent-Resume-Analyzer-Job-Matcher
 
-## 🔗 Live Demo <img width="480" height="446" alt="YoutubeVideoGIFbySVGDesign" src="https://github.com/user-attachments/assets/507e1843-e4f0-4577-b321-97853cee0449" />
+## 🔗 Live Demo ▶️
 
 **YouTube:**
-https://youtu.be/Lz4wwxCGtP4
+https://youtu.be/8V-asbVamK4
